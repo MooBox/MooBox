@@ -19,7 +19,10 @@ pin 2 is used to provide power to servo
 pin 6 is used as ground
 
 
-
-http://jserviceswordpress.wordpress-hebergement.fr//wp-content/uploads/sites/2841/2014/04/pins_thumb.png
+![map](http://jserviceswordpress.wordpress-hebergement.fr//wp-content/uploads/sites/2841/2014/04/pins_thumb.png "map")
 
 A 2300 ma power supply is used to power everything
+
+
+/!\ [Pi4J](http://pi4j.com/) is needed /!\
+
