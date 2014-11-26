@@ -18,6 +18,7 @@ public class PinSignalThread implements Runnable {
     private final double pos3;
     private boolean running = false;
     private final int gpio;
+    private static final Logger logger = Logger.getLogger(PinSignalThread.class.getName());
 
     public PinSignalThread(double pos1, double pos3, int gpio) {
         this.pos1 = pos1;
@@ -32,7 +33,7 @@ public class PinSignalThread implements Runnable {
 
         if(!running)
         {   running = true;
-            System.out.println(" --> executing process: mooooooooooooo");
+            logger.info(" --> executing process: mooooooooooooo");
             try {
                 SoftPwm.softPwmWrite(gpio, (int) pos1);
                 Thread.sleep(1750);

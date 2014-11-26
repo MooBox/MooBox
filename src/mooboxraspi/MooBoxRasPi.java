@@ -40,13 +40,16 @@ public class MooBoxRasPi {
     private static final double pos3 = rightP * msPerCycle;
     
     private static GpioController gpio;
+    
+    private static final Logger logger = Logger.getLogger(MooBoxRasPi.class.getName());
+    
 
     /**
      * @param args the command line arguments
      * @throws java.lang.InterruptedException
      */
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("}> -Welcome to moo box project- <{");
+        logger.info("}> -Welcome to moo box project- <{");
         Gpio.wiringPiSetup();
         gpio = GpioFactory.getInstance();
 
@@ -61,7 +64,7 @@ public class MooBoxRasPi {
 
     private static GpioPinListenerDigital initButtonServoAnimListner(PinSignalThread runnable) {
         return (GpioPinDigitalStateChangeEvent event) -> {
-            System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+            logger.log(Level.INFO, " --> GPIO PIN STATE CHANGE: {0} = {1}", new Object[]{event.getPin(), event.getState()});
             if (event.getState().equals(PinState.LOW)) {
                 new Thread(runnable).start();
             }
@@ -102,12 +105,12 @@ public class MooBoxRasPi {
     
         private static GpioPinListenerDigital initButtonShutdownListner() {
         return (GpioPinDigitalStateChangeEvent event) -> {
-            System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+            logger.log(Level.INFO, " --> GPIO PIN STATE CHANGE: {0} = {1}", new Object[]{event.getPin(), event.getState()});
             if (event.getState().equals(PinState.LOW)) {
                 try {
                     Runtime.getRuntime().exec("halt");
                 } catch (IOException ex) {
-                    Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.log(Level.SEVERE, null, ex);
                 }
             }
         };
