@@ -8,7 +8,6 @@ package mooboxraspi;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
-import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
@@ -44,6 +43,7 @@ public class MooBoxRasPi {
 
     /**
      * @param args the command line arguments
+     * @throws java.lang.InterruptedException
      */
     public static void main(String[] args) throws InterruptedException {
         System.out.println(")> Welcome to moo box project )>");
@@ -55,22 +55,17 @@ public class MooBoxRasPi {
         initButton();        
 
         // keep program running until user aborts (CTRL-C)
-        for (;;) {
-            Thread.sleep(500);
-        }
-        //pin.low();
+        while(true)
+        {}
     }
 
     private static GpioPinListenerDigital initButtonServoAnimListner(PinSignalThread runnable) {
-        return new GpioPinListenerDigital() {
-            @Override
-            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-                System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
-                if (event.getState().equals(PinState.LOW)) {
-                    new Thread(runnable).start();
-                }
-                // display pin state on console
+        return (GpioPinDigitalStateChangeEvent event) -> {
+            System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+            if (event.getState().equals(PinState.LOW)) {
+                new Thread(runnable).start();
             }
+            // display pin state on console
         };
     }
 
@@ -106,16 +101,13 @@ public class MooBoxRasPi {
     }
     
         private static GpioPinListenerDigital initButtonShutdownListner() {
-        return new GpioPinListenerDigital() {
-            @Override
-            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-                System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
-                if (event.getState().equals(PinState.LOW)) {
-                    try {
-                        Runtime.getRuntime().exec("halt");
-                    } catch (IOException ex) {
-                        Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+        return (GpioPinDigitalStateChangeEvent event) -> {
+            System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+            if (event.getState().equals(PinState.LOW)) {
+                try {
+                    Runtime.getRuntime().exec("halt");
+                } catch (IOException ex) {
+                    Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };

@@ -14,10 +14,10 @@ import java.util.logging.Logger;
  * @author darksidious
  */
 public class PinSignalThread implements Runnable {
-    private double pos1;
-    private double pos3;
+    private final double pos1;
+    private final double pos3;
     private boolean running = false;
-    private int gpio;
+    private final int gpio;
 
     public PinSignalThread(double pos1, double pos3, int gpio) {
         this.pos1 = pos1;
