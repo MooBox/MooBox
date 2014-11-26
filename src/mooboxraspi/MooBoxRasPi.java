@@ -55,27 +55,9 @@ public class MooBoxRasPi {
         SoftPwm.softPwmWrite(0, (int) pos3);
         SoftPwm.softPwmWrite(1, (int) pos3);
         Thread.sleep(500);
-        
-       
-        
-        //GpioPinDigitalOutput pin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01);
+
         int interval = 500;
         //pin.high();
-       /* while(true)
-         {
-         Thread.sleep(interval );
-         SoftPwm.softPwmWrite( 1, (int) pos1 );
-         SoftPwm.softPwmWrite( 0, (int) pos2 );
-         Thread.sleep(interval );
-         SoftPwm.softPwmWrite( 1, (int) pos2 );
-         SoftPwm.softPwmWrite( 0, (int) pos1 );
-         Thread.sleep(interval );
-         SoftPwm.softPwmWrite( 1, (int) pos3 );
-         SoftPwm.softPwmWrite( 0, (int) pos3 );
-         Thread.sleep(interval );
-         }*/
-
-        gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_UP);
 
         final GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03, PinPullResistance.PULL_DOWN);
 
@@ -96,10 +78,10 @@ public class MooBoxRasPi {
                             System.out.println(" --> executing process: mooooooooooooo");
                             try {
                                 SoftPwm.softPwmWrite(0, (int) pos1);
-                                Thread.sleep(5000);
+                                Thread.sleep(2500);
 
                                 SoftPwm.softPwmWrite(0, (int) pos3);
-                                Thread.sleep(2000);
+                                Thread.sleep(750);
 
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
@@ -130,10 +112,10 @@ public class MooBoxRasPi {
                             System.out.println(" --> executing process: mooooooooooooo");
                             try {
                                 SoftPwm.softPwmWrite(1, (int) pos1);
-                                Thread.sleep(5000);
+                                Thread.sleep(2500);
 
                                 SoftPwm.softPwmWrite(1, (int) pos3);
-                                Thread.sleep(2000);
+                                Thread.sleep(750);
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -149,9 +131,7 @@ public class MooBoxRasPi {
                 // display pin state on console
             }
         });
-
-        System.out.println(" ... complete the GPIO #02 circuit and see the listener feedback here in the console.");
-
+        
         // keep program running until user aborts (CTRL-C)
         for (;;) {
             Thread.sleep(500);
