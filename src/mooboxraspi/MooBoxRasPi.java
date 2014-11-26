@@ -10,6 +10,7 @@ import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinPullResistance;
+import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
@@ -26,21 +27,24 @@ public class MooBoxRasPi {
 
     public static boolean runningServo1 = false;
     public static boolean runningServo2 = false;
-
+    private static final double frHz = 100;
+    private static final double leftP = 0.25;
+    private static final double rightP = 3;
+    private static final double middleP = 1.5;
+    
+    private static final int GPIO1 = 0;
+    private static final int GPIO2 = 1;
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws InterruptedException {
+        System.out.println(")> Welcome to moo box project )>");
         Gpio.wiringPiSetup();
         final GpioController gpio = GpioFactory.getInstance();
-        double frHz = 100;
-        double leftP = 0.25;
-        double rightP = 3;
-        double middleP = 1.5;
 
-        SoftPwm.softPwmCreate(0, 0, 100);
+        SoftPwm.softPwmCreate(GPIO1, 0, 100);
 
-        SoftPwm.softPwmCreate(1, 0, 100);
+        SoftPwm.softPwmCreate(GPIO2, 0, 100);
 
         double msPerCycle = 1000 / frHz;
 
@@ -48,20 +52,20 @@ public class MooBoxRasPi {
         double pos2 = middleP * msPerCycle;
         double pos3 = rightP * msPerCycle;
 
-        System.out.println(")> Welcome to moo box project )>");
-        SoftPwm.softPwmWrite(0, (int) pos1);
-        SoftPwm.softPwmWrite(1, (int) pos1);
+       
+        SoftPwm.softPwmWrite(GPIO1, (int) pos1);
+        SoftPwm.softPwmWrite(GPIO2, (int) pos1);
         Thread.sleep(500);
-        SoftPwm.softPwmWrite(0, (int) pos3);
-        SoftPwm.softPwmWrite(1, (int) pos3);
+        SoftPwm.softPwmWrite(GPIO1, (int) pos3);
+        SoftPwm.softPwmWrite(GPIO2, (int) pos3);
         Thread.sleep(500);
 
         int interval = 500;
         //pin.high();
 
-        final GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03, PinPullResistance.PULL_DOWN);
+        final GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03, PinPullResistance.PULL_UP);
 
-        final GpioPinDigitalInput myButton2 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_DOWN);
+        final GpioPinDigitalInput myButton2 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_UP);
 
         // create and register gpio pin listener
         myButton.addListener(new GpioPinListenerDigital() {
@@ -69,32 +73,13 @@ public class MooBoxRasPi {
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
                 System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
 
-                Thread thread = new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (!runningServo1) {
-                            runningServo1 = true;
-                            System.out.println(" --> executing process: mooooooooooooo");
-                            try {
-                                SoftPwm.softPwmWrite(0, (int) pos1);
-                                Thread.sleep(2500);
-
-                                SoftPwm.softPwmWrite(0, (int) pos3);
-                                Thread.sleep(750);
-
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            runningServo1 = false;
-                        }
+                if (event.getState().equals(PinState.LOW)) {
+                    Thread thread = new Thread(new PinSignalThread(pos1, pos3, GPIO1, runningServo1));
+                    if (!runningServo1) {
+                        thread.start();
                     }
-                });
-                if (!runningServo1) {
-                    thread.start();
+                    // display pin state on console
                 }
-
-                // display pin state on console
             }
         });
 
@@ -102,36 +87,16 @@ public class MooBoxRasPi {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
                 System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
-
-                Thread thread = new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (!runningServo2) {
-                            runningServo2 = true;
-                            System.out.println(" --> executing process: mooooooooooooo");
-                            try {
-                                SoftPwm.softPwmWrite(1, (int) pos1);
-                                Thread.sleep(2500);
-
-                                SoftPwm.softPwmWrite(1, (int) pos3);
-                                Thread.sleep(750);
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-
-                            runningServo2 = false;
-                        }
+                if (event.getState().equals(PinState.LOW)) {
+                    Thread thread = new Thread(new PinSignalThread(pos1, pos3, GPIO2, runningServo2));
+                    if (!runningServo2) {
+                        thread.start();
                     }
-                });
-                if (!runningServo2) {
-                    thread.start();
                 }
-
                 // display pin state on console
             }
         });
-        
+
         // keep program running until user aborts (CTRL-C)
         for (;;) {
             Thread.sleep(500);
