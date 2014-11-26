@@ -46,7 +46,7 @@ public class MooBoxRasPi {
      * @throws java.lang.InterruptedException
      */
     public static void main(String[] args) throws InterruptedException {
-        System.out.println(")> Welcome to moo box project )>");
+        System.out.println("}> -Welcome to moo box project- <{");
         Gpio.wiringPiSetup();
         gpio = GpioFactory.getInstance();
 
