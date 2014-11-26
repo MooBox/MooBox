@@ -8,7 +8,6 @@ package mooboxraspi;
 import com.pi4j.wiringpi.SoftPwm;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static mooboxraspi.MooBoxRasPi.runningServo2;
 
 /**
  *
@@ -17,13 +16,12 @@ import static mooboxraspi.MooBoxRasPi.runningServo2;
 public class PinSignalThread implements Runnable {
     private double pos1;
     private double pos3;
-    private boolean running;
+    private boolean running = false;
     private int gpio;
 
-    public PinSignalThread(double pos1, double pos3, int gpio, boolean running) {
+    public PinSignalThread(double pos1, double pos3, int gpio) {
         this.pos1 = pos1;
         this.pos3 = pos3;
-        this.running = running;
         this.gpio = gpio;
     }
     
@@ -31,8 +29,9 @@ public class PinSignalThread implements Runnable {
 
     @Override
     public void run() {
-        if (!running) {
-            running = true;
+
+        if(!running)
+        {   running = true;
             System.out.println(" --> executing process: mooooooooooooo");
             try {
                 SoftPwm.softPwmWrite(gpio, (int) pos1);
@@ -46,6 +45,7 @@ public class PinSignalThread implements Runnable {
 
             running = false;
         }
+
     }
 
 }
