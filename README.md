@@ -12,9 +12,9 @@ GPIO 00 (pin 11) manage servo 1
 
 GPIO 01 (pin 12) manage servo 2
 
-GPIO 02 (pin 13) manage the shutdown of the raspberry pi (the signal must be connected to the ground)
-
 GPIO 03 (pin 15) and 04 (pin 16) are set as pull_up and are listening a pull_down event
+
+GPIO 13 (pin 21) manage the shutdown of the raspberry pi (the signal must be connected to the ground)
 
 pin 2 is used to provide 5.5v power to servo
 
