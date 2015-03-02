@@ -98,7 +98,7 @@ public class MooBoxRasPi {
         servoButton2.addListener(initButtonServoAnimListner(animServo2));
         
         
-        final GpioPinDigitalInput shutdownButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_UP);
+        final GpioPinDigitalInput shutdownButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_13, PinPullResistance.PULL_UP);
 
         shutdownButton.addListener(initButtonShutdownListner());
     }
