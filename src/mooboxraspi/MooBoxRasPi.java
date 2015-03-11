@@ -16,6 +16,8 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import com.pi4j.wiringpi.Gpio;
 import com.pi4j.wiringpi.SoftPwm;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,11 +40,15 @@ public class MooBoxRasPi {
     private static final double pos1 = leftP * msPerCycle;
     private static final double pos2 = middleP * msPerCycle;
     private static final double pos3 = rightP * msPerCycle;
-    
+
+
+
     private static GpioController gpio;
     
     private static final Logger logger = Logger.getLogger(MooBoxRasPi.class.getName());
-    
+    public static PinSignalThread animServo1;
+    public static PinSignalThread animServo2;
+
 
     /**
      * @param args the command line arguments
@@ -55,7 +61,9 @@ public class MooBoxRasPi {
 
         initServo();
         startAnim();
-        initButton();        
+        initButton();
+
+        initServer();
 
         // keep program running until user aborts (CTRL-C)
         while(true)
@@ -91,8 +99,8 @@ public class MooBoxRasPi {
 
         final GpioPinDigitalInput servoButton2 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_UP);
 
-        PinSignalThread animServo1 = new PinSignalThread(pos1, pos3, GPIO0);
-        PinSignalThread animServo2 = new PinSignalThread(pos1, pos3, GPIO1);
+        animServo1 = new PinSignalThread(pos1, pos3, GPIO0);
+        animServo2 = new PinSignalThread(pos1, pos3, GPIO1);
 
         servoButton.addListener(initButtonServoAnimListner(animServo1));
         servoButton2.addListener(initButtonServoAnimListner(animServo2));
@@ -114,6 +122,35 @@ public class MooBoxRasPi {
                 }
             }
         };
+    }
+
+    private static int port=8091, maxConnections=0;
+
+    private static void initServer(){
+        int i=0;
+
+        try{
+            ServerSocket listener = null;
+            try {
+                listener = new ServerSocket(port);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            Socket server;
+
+            while((i++ < maxConnections) || (maxConnections == 0)){
+                MooBoxRunnableServer connection;
+
+                server = listener.accept();
+                MooBoxRunnableServer conn_c= new MooBoxRunnableServer(server);
+                Thread t = new Thread(conn_c);
+                t.start();
+            }
+        } catch (IOException ioe) {
+            System.out.println("IOException on socket listen: " + ioe);
+            ioe.printStackTrace();
+        }
     }
 
 }
