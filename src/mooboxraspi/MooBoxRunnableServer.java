@@ -28,11 +28,21 @@ public class MooBoxRunnableServer implements Runnable {
 
             while ((line = in.readLine()) != null && !line.equals(".")) {
                 input = input + line;
-                out.println("I got:" + line);
+            }
 
+            if (input.equals("1")) {
                 MooBoxRasPi.animServo1.run();
+            }
+            else if (input.equals("2")) {
                 MooBoxRasPi.animServo2.run();
             }
+            else if (input.equals("1&2")) {
+                Thread thread1 = new Thread(MooBoxRasPi.animServo1);
+                Thread thread2 = new Thread(MooBoxRasPi.animServo2);
+                thread1.start();
+                thread2.start();
+            }
+
 
             // Now write to the client
 

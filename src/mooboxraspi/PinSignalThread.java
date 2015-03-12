@@ -14,15 +14,15 @@ import java.util.logging.Logger;
  * @author darksidious
  */
 public class PinSignalThread implements Runnable {
-    private final double pos1;
-    private final double pos3;
+    private final double positionMeuuuuh;
+    private final double posistionDeReposInitial;
     private boolean running = false;
     private final int gpio;
     private static final Logger logger = Logger.getLogger(PinSignalThread.class.getName());
 
-    public PinSignalThread(double pos1, double pos3, int gpio) {
-        this.pos1 = pos1;
-        this.pos3 = pos3;
+    public PinSignalThread(double positionMeuuuuh, double posistionDeReposInitial, int gpio) {
+        this.positionMeuuuuh = positionMeuuuuh;
+        this.posistionDeReposInitial = posistionDeReposInitial;
         this.gpio = gpio;
     }
     
@@ -35,10 +35,10 @@ public class PinSignalThread implements Runnable {
         {   running = true;
             logger.info(" --> executing process: mooooooooooooo");
             try {
-                SoftPwm.softPwmWrite(gpio, (int) pos1);
+                SoftPwm.softPwmWrite(gpio, (int) positionMeuuuuh);
                 Thread.sleep(1750);
 
-                SoftPwm.softPwmWrite(gpio, (int) pos3);
+                SoftPwm.softPwmWrite(gpio, (int) posistionDeReposInitial);
                 Thread.sleep(500);
             } catch (InterruptedException ex) {
                 Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
@@ -48,5 +48,6 @@ public class PinSignalThread implements Runnable {
         }
 
     }
+
 
 }

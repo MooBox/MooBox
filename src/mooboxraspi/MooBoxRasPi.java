@@ -28,18 +28,16 @@ import java.util.logging.Logger;
 public class MooBoxRasPi {
 
     private static final double frHz = 100;
-    private static final double leftP = 0.25;
+    private static final double leftP = 0.5;
     private static final double rightP = 3;
-    private static final double middleP = 1.5;
 
     private static final int GPIO0 = 0;
     private static final int GPIO1 = 1;
 
     private static final double msPerCycle = 1000 / frHz;
 
-    private static final double pos1 = leftP * msPerCycle;
-    private static final double pos2 = middleP * msPerCycle;
-    private static final double pos3 = rightP * msPerCycle;
+    private static final double positionMeuuuuh = leftP * msPerCycle;
+    private static final double posistionDeReposInitial = rightP * msPerCycle;
 
 
 
@@ -86,11 +84,11 @@ public class MooBoxRasPi {
     }
 
     private static void startAnim() throws InterruptedException {
-        SoftPwm.softPwmWrite(GPIO0, (int) pos1);
-        SoftPwm.softPwmWrite(GPIO1, (int) pos1);
+        SoftPwm.softPwmWrite(GPIO0, (int) positionMeuuuuh);
+        SoftPwm.softPwmWrite(GPIO1, (int) positionMeuuuuh);
         Thread.sleep(500);
-        SoftPwm.softPwmWrite(GPIO0, (int) pos3);
-        SoftPwm.softPwmWrite(GPIO1, (int) pos3);
+        SoftPwm.softPwmWrite(GPIO0, (int) posistionDeReposInitial);
+        SoftPwm.softPwmWrite(GPIO1, (int) posistionDeReposInitial);
         Thread.sleep(500);
     }
 
@@ -99,8 +97,8 @@ public class MooBoxRasPi {
 
         final GpioPinDigitalInput servoButton2 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_UP);
 
-        animServo1 = new PinSignalThread(pos1, pos3, GPIO0);
-        animServo2 = new PinSignalThread(pos1, pos3, GPIO1);
+        animServo1 = new PinSignalThread(positionMeuuuuh, posistionDeReposInitial, GPIO0);
+        animServo2 = new PinSignalThread(positionMeuuuuh, posistionDeReposInitial, GPIO1);
 
         servoButton.addListener(initButtonServoAnimListner(animServo1));
         servoButton2.addListener(initButtonServoAnimListner(animServo2));
