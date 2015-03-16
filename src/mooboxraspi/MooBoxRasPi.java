@@ -18,8 +18,10 @@ import com.pi4j.wiringpi.SoftPwm;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -43,7 +45,7 @@ public class MooBoxRasPi {
 
     private static GpioController gpio;
     
-    private static final Logger logger = Logger.getLogger(MooBoxRasPi.class.getName());
+    public static final Logger logger = Logger.getLogger(MooBoxRasPi.class.getName());
     public static PinSignalThread animServo1;
     public static PinSignalThread animServo2;
 
@@ -53,6 +55,7 @@ public class MooBoxRasPi {
      * @throws java.lang.InterruptedException
      */
     public static void main(String[] args) throws InterruptedException {
+        Utils.initLogging(logger);
         logger.info("}> -Welcome to moo box project- <{");
         Gpio.wiringPiSetup();
         gpio = GpioFactory.getInstance();
@@ -84,6 +87,19 @@ public class MooBoxRasPi {
     }
 
     private static void startAnim() throws InterruptedException {
+        Thread thread = new Thread(() -> {
+            try {
+                logger.info("let's try to send a mail...");
+                String[] commands = new String[]{"/opt/MooBoxProject/scripts/wake.sh"};
+                Runtime.getRuntime().exec(commands);
+            }
+            catch (IOException e) {
+                logger.log(Level.SEVERE, null, e);
+            }
+        });
+
+        thread.start();
+
         SoftPwm.softPwmWrite(GPIO0, (int) positionMeuuuuh);
         SoftPwm.softPwmWrite(GPIO1, (int) positionMeuuuuh);
         Thread.sleep(500);
@@ -97,8 +113,8 @@ public class MooBoxRasPi {
 
         final GpioPinDigitalInput servoButton2 = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_UP);
 
-        animServo1 = new PinSignalThread(positionMeuuuuh, posistionDeReposInitial, GPIO0);
-        animServo2 = new PinSignalThread(positionMeuuuuh, posistionDeReposInitial, GPIO1);
+        animServo1 = new PinSignalThread(positionMeuuuuh, posistionDeReposInitial, GPIO0,"#GREENMOO","greenMoo.sh");
+        animServo2 = new PinSignalThread(positionMeuuuuh, posistionDeReposInitial, GPIO1,"#REDMOO", "redMoo.sh");
 
         servoButton.addListener(initButtonServoAnimListner(animServo1));
         servoButton2.addListener(initButtonServoAnimListner(animServo2));
@@ -113,11 +129,19 @@ public class MooBoxRasPi {
         return (GpioPinDigitalStateChangeEvent event) -> {
             logger.log(Level.INFO, " --> GPIO PIN STATE CHANGE: {0} = {1}", new Object[]{event.getPin(), event.getState()});
             if (event.getState().equals(PinState.LOW)) {
-                try {
-                    Runtime.getRuntime().exec("halt");
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                }
+                Thread thread = new Thread(() -> {
+                    try {
+                        logger.info("let's try to send a mail...");
+                        String[] commands = new String[]{"/opt/MooBoxProject/scripts/sleep.sh"};
+                        Runtime.getRuntime().exec(commands);
+                        Runtime.getRuntime().exec("halt");
+                    }
+                    catch (IOException e) {
+                        logger.log(Level.SEVERE, null, e);
+                    }
+                });
+
+                thread.start();
             }
         };
     }
@@ -133,7 +157,7 @@ public class MooBoxRasPi {
                 listener = new ServerSocket(port);
             }
             catch (IOException e) {
-                e.printStackTrace();
+                logger.severe("IOException on socket listen: " + e);
             }
             Socket server;
 
@@ -146,9 +170,9 @@ public class MooBoxRasPi {
                 t.start();
             }
         } catch (IOException ioe) {
-            System.out.println("IOException on socket listen: " + ioe);
-            ioe.printStackTrace();
+            logger.severe("IOException on socket listen: " + ioe);
         }
     }
+
 
 }

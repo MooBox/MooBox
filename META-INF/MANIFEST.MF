@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: lib/pi4j-core-1.0-20140918.051548-20.jar lib/javax.mail.jar
+Main-Class: mooboxraspi.MooBoxRasPi
+
