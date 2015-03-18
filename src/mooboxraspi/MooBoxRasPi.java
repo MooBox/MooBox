@@ -27,9 +27,12 @@ import java.util.logging.Logger;
  */
 public class MooBoxRasPi {
 
-    private static final double frHz = 100;
-    private static final double leftP = 0.5;
-    private static final double rightP = 3;
+    public static final String SERVO_MOO_POSITION = "servo.moo.position";
+    public static final String SERVO_SLEEP_POSITION = "servo.sleep.position";
+    public static final String SERVER_PORT = "server.port";
+    private static double frHz = 100;
+    private static double leftP = 0.5;
+    private static double rightP = 3;
 
     private static final int GPIO0 = 0;
     private static final int GPIO1 = 1;
@@ -57,6 +60,9 @@ public class MooBoxRasPi {
         logger.info("}> -Welcome to moo box project- <{");
         Gpio.wiringPiSetup();
         gpio = GpioFactory.getInstance();
+
+        leftP = Config.getPropertyAsDouble(SERVO_MOO_POSITION, leftP);
+        rightP = Config.getPropertyAsDouble(SERVO_SLEEP_POSITION, rightP);
 
         initServo();
         startAnim();
@@ -147,6 +153,7 @@ public class MooBoxRasPi {
     private static int port=8091, maxConnections=0;
 
     private static void initServer(){
+        port =  Config.getPropertyAsInt(SERVER_PORT, port);
         int i=0;
 
         try{
