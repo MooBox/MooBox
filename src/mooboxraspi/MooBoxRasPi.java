@@ -48,6 +48,7 @@ public class MooBoxRasPi {
     public static final Logger logger = Logger.getLogger(MooBoxRasPi.class.getName());
     public static PinSignalThread animServo1;
     public static PinSignalThread animServo2;
+    public static GpioPinDigitalOutput HALT_AND_CATCH_FIRE_ANIM_PIN;
 
 
     /**
@@ -126,7 +127,9 @@ public class MooBoxRasPi {
 
 
         final GpioPinDigitalInput shutdownButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_13, PinPullResistance.PULL_UP);
-
+        HALT_AND_CATCH_FIRE_ANIM_PIN = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_15,   // PIN NUMBER
+                "Halt And Catch Fire",           // PIN FRIENDLY NAME (optional)
+                PinState.HIGH);
         shutdownButton.addListener(initButtonShutdownListner());
     }
 
@@ -154,7 +157,9 @@ public class MooBoxRasPi {
                             try {
                                 logger.info("executing halt and catch fire...");
                                 String[] commands = new String[]{"/opt/MooBoxProject/scripts/hcf.sh"};
+                                HALT_AND_CATCH_FIRE_ANIM_PIN.low();
                                 Runtime.getRuntime().exec(commands);
+                                HALT_AND_CATCH_FIRE_ANIM_PIN.high();
                             }
                             catch (IOException e) {
                                 logger.log(Level.SEVERE, null, e);

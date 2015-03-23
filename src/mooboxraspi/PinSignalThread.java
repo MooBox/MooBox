@@ -24,6 +24,7 @@ public class PinSignalThread implements Runnable {
     private final int gpio;
     private static final Logger logger = Logger.getLogger(PinSignalThread.class.getName());
     private String scriptName;
+    private String mooer="";
 
     public PinSignalThread(double positionMeuuuuh, double posistionDeReposInitial, int gpio, String subject, String scriptName) {
         Utils.initLogging(logger);
@@ -33,8 +34,12 @@ public class PinSignalThread implements Runnable {
         this.subject = subject;
         this.scriptName=scriptName;
     }
-    
-    
+
+
+    public void run(String mooer) {
+        this.mooer=mooer;
+        run();
+    }
 
     @Override
     public void run() {
@@ -66,7 +71,7 @@ public class PinSignalThread implements Runnable {
             Thread thread = new Thread(() -> {
                 try {
                     logger.info("let's try to send a mail...");
-                    String[] commands = new String[]{"/opt/MooBoxProject/scripts/"+scriptName};
+                    String[] commands = new String[]{"./scripts/"+scriptName, mooer};
                     Runtime.getRuntime().exec(commands);
                 }
                 catch (IOException e) {

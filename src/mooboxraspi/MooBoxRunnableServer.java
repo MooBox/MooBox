@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
@@ -28,24 +29,42 @@ public class MooBoxRunnableServer implements Runnable {
             // Get input from the client
             DataInputStream in = new DataInputStream(server.getInputStream());
             PrintStream out = new PrintStream(server.getOutputStream());
+            String input = "";
 
             while ((line = in.readLine()) != null && !line.equals(".")) {
-                if (line.equals("1")) {
-                    MooBoxRasPi.animServo1.run();
-                }
-                else if (line.equals("2")) {
-                    MooBoxRasPi.animServo2.run();
-                }
-                else if (line.equals("1&2")) {
-                    Thread thread1 = new Thread(MooBoxRasPi.animServo1);
-                    Thread thread2 = new Thread(MooBoxRasPi.animServo2);
-                    thread1.start();
-                    thread2.start();
-                }
-                // Now write to the client
-                out.println("Mooing " + line);
-                logger.info("Overall message is:" + line);
+                input += line;
             }
+
+            logger.info("input = "+input);
+            HashMap<String, String> properties = Utils.extractProperties(input);
+
+            logger.info("properties = " + properties.values());
+
+            String function = properties.getOrDefault("moobox.function", "");
+            String mooer = properties.getOrDefault("moobox.mooer", "Anonymous");
+            if (function.equals("1")) {
+                MooBoxRasPi.animServo1.run(mooer);
+            }
+            else if (function.equals("2")) {
+                MooBoxRasPi.animServo2.run(mooer);
+            }
+            else if (function.equals("1AND2")) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MooBoxRasPi.animServo1.run(mooer);
+                        MooBoxRasPi.animServo2.run(mooer);
+                    }
+                });
+                thread.start();
+
+            }
+            else {
+                logger.severe("Bad function" + function.length() + " value=" + function);
+
+            }
+            out.println(input);
+
 
             server.close();
         }
