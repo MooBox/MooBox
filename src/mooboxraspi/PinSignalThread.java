@@ -7,13 +7,11 @@ package mooboxraspi;
 
 import com.pi4j.wiringpi.SoftPwm;
 
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author darksidious
  */
 public class PinSignalThread implements Runnable {
@@ -24,7 +22,7 @@ public class PinSignalThread implements Runnable {
     private final int gpio;
     private static final Logger logger = Logger.getLogger(PinSignalThread.class.getName());
     private String scriptName;
-    private String mooer="";
+    public static String mooer = "";
 
     public PinSignalThread(double positionMeuuuuh, double posistionDeReposInitial, int gpio, String subject, String scriptName) {
         Utils.initLogging(logger);
@@ -32,20 +30,20 @@ public class PinSignalThread implements Runnable {
         this.posistionDeReposInitial = posistionDeReposInitial;
         this.gpio = gpio;
         this.subject = subject;
-        this.scriptName=scriptName;
+        this.scriptName = scriptName;
     }
 
 
     public void run(String mooer) {
-        this.mooer=mooer;
+        this.mooer = mooer;
         run();
     }
 
     @Override
     public void run() {
 
-        if(!running)
-        {   running = true;
+        if (!running) {
+            running = true;
             logger.info(" --> executing process: mooooooooooooo");
             try {
                 SoftPwm.softPwmWrite(gpio, (int) positionMeuuuuh);
@@ -53,25 +51,15 @@ public class PinSignalThread implements Runnable {
 
                 SoftPwm.softPwmWrite(gpio, (int) posistionDeReposInitial);
                 Thread.sleep(500);
-            } catch (InterruptedException ex) {
+            }
+            catch (InterruptedException ex) {
                 Logger.getLogger(MooBoxRasPi.class.getName()).log(Level.SEVERE, null, ex);
             }
 
 
-/*
-            String[] recipients = {"trigger@recipe.ifttt.com"};
-            try {
-                ServiceMail.sendMail(recipients,subject,"Moooooooooooooo");
-            }
-            catch (MessagingException e) {
-                logger.warning(e.toString() + e.getMessage());
-            }
-*/
-
             Thread thread = new Thread(() -> {
                 try {
-                    logger.info("let's try to send a mail...");
-                    String[] commands = new String[]{"./scripts/"+scriptName, mooer};
+                    String[] commands = new String[]{"/opt/MooBoxProject/scripts/" + scriptName, mooer};
                     Runtime.getRuntime().exec(commands);
                 }
                 catch (IOException e) {

@@ -49,15 +49,22 @@ public class MooBoxRunnableServer implements Runnable {
                 MooBoxRasPi.animServo2.run(mooer);
             }
             else if (function.equals("1AND2")) {
-                Thread thread = new Thread(new Runnable() {
+                Thread thread1 = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         MooBoxRasPi.animServo1.run(mooer);
-                        MooBoxRasPi.animServo2.run(mooer);
+
                     }
                 });
-                thread.start();
+                Thread thread2 = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MooBoxRasPi.animServo2.run(mooer);
 
+                    }
+                });
+                thread1.start();
+                thread2.start();
             }
             else {
                 logger.severe("Bad function" + function.length() + " value=" + function);

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +28,7 @@ public class MooBoxRasPi {
     public static final String SERVO_SLEEP_POSITION = "servo.sleep.position";
     public static final String SHUTDOWN_AFTER_MS = "shutdown.after.ms";
     public static final String SERVER_PORT = "server.port";
+    public static final String MOOERS_POSSIBLE = "mooers.possible";
     private static double frHz = 100;
     private static double leftP = 0.5;
     private static double rightP = 3;
@@ -79,8 +81,22 @@ public class MooBoxRasPi {
 
     private static GpioPinListenerDigital initButtonServoAnimListner(PinSignalThread runnable) {
         return (GpioPinDigitalStateChangeEvent event) -> {
-            logger.log(Level.INFO, " --> GPIO PIN STATE CHANGE: {0} = {1}", new Object[]{event.getPin(), event.getState()});
+            //logger.log(Level.INFO, " --> GPIO PIN STATE CHANGE: {0} = {1}", new Object[]{event.getPin(), event.getState()});
             if (event.getState().equals(PinState.LOW)) {
+                String[] mooers = Config.getProperty(MOOERS_POSSIBLE, "").split(";");
+                Random r = new Random();
+                if (mooers.length > 1) {
+                    int valeur = 0 + r.nextInt(mooers.length);
+                    logger.info("=>>>>>>>>>>>>>>>>>>>> Mooers = " + mooers[valeur]);
+                    PinSignalThread.mooer = mooers[valeur];
+                }
+                else if (mooers.length == 1) {
+                    logger.info("=>>>>>>>>>>>>>>>>>>>> Mooers = " + mooers[0]);
+                    PinSignalThread.mooer = mooers[0];
+                }
+                else {
+                    PinSignalThread.mooer = "";
+                }
                 new Thread(runnable).start();
             }
             // display pin state on console
@@ -135,7 +151,7 @@ public class MooBoxRasPi {
 
     private static GpioPinListenerDigital initButtonShutdownListner() {
         return (GpioPinDigitalStateChangeEvent event) -> {
-            logger.log(Level.INFO, " --> GPIO PIN STATE CHANGE: {0} = {1}", new Object[]{event.getPin(), event.getState()});
+            //logger.log(Level.INFO, " --> GPIO PIN STATE CHANGE: {0} = {1}", new Object[]{event.getPin(), event.getState()});
             if (event.getState().equals(PinState.HIGH)) {
                 if (stateLowStarted != 0) {
                     if (new Date().getTime() > (stateLowStarted + shutdownAfter)) {
@@ -152,7 +168,8 @@ public class MooBoxRasPi {
                         });
 
                         thread.start();
-                    }else if(new Date().getTime() > (stateLowStarted + 10)){
+                    }
+                    else if (new Date().getTime() > (stateLowStarted + 10)) {
                         Thread thread = new Thread(() -> {
                             try {
                                 logger.info("executing halt and catch fire...");
